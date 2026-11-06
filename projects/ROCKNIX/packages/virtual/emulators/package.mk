@@ -100,7 +100,11 @@ case "${DEVICE}" in
 esac
 
 if [ "${DEVICE}" = "RK3576" ]; then
-  PKG_EMUS="${PKG_EMUS// vita3k-sa/}"
+  PKG_DEPENDS_TARGET="${PKG_DEPENDS_TARGET// common-shaders glsl-shaders/}"
+  PKG_EMUS="ppsspp-sa"
+  PKG_RETROARCH=""
+  LIBRETRO_CORES=""
+  EMUS_32BIT=""
 fi
 
 # Split building emulators into 2 stages, needed to fit the jobs into the 6 hour GH runner time limit.
@@ -124,6 +128,35 @@ install_script() {
   fi
   cp -rf ${PKG_DIR}/sources/"${1}" ${INSTALL}/usr/config/modules
   chmod 0755 ${INSTALL}/usr/config/modules/"${1}"
+}
+
+install_es_systems() {
+  ### Create es_systems
+  mk_es_systems
+
+  ### Generate document
+  mk_system_doc
+
+  mkdir -p ${INSTALL}/usr/config/emulationstation
+  cp -f ${ESTMP}/es_systems.cfg ${INSTALL}/usr/config/emulationstation
+
+  if [ "${WINDOWMANAGER}" = "weston" ]; then
+    sed -i 's~%RUNCOMMAND%~weston-terminal --command="%ROM%"~g' ${INSTALL}/usr/config/emulationstation/es_systems.cfg
+  elif [ "${WINDOWMANAGER}" = "swaywm-env" ]; then
+    sed -i 's~%RUNCOMMAND%~/usr/bin/foot %ROM%~g' ${INSTALL}/usr/config/emulationstation/es_systems.cfg
+  else
+    sed -i 's~%RUNCOMMAND%~/usr/bin/run %ROM%~g' ${INSTALL}/usr/config/emulationstation/es_systems.cfg
+  fi
+
+  ### Automount should handle this.
+  cp -f ${ESTMP}/system-dirs.conf ${INSTALL}/usr/config
+
+  mkdir -p ${INSTALL}/usr/bin
+  cp ${PKG_DIR}/scripts/mkcontroller ${INSTALL}/usr/bin
+
+  mkdir -p ${INSTALL}/usr/lib/autostart/common
+  cp ${PKG_DIR}/autostart/* ${INSTALL}/usr/lib/autostart/common
+  chmod 0755 ${INSTALL}/usr/lib/autostart/common/*
 }
 
 makeinstall_target() {
@@ -166,6 +199,20 @@ makeinstall_target() {
 
   ### Apply documentation header
   start_system_doc
+
+  if [ "${DEVICE}" = "RK3576" ]; then
+    add_emu_core psp ppsspp ppsspp-sa true
+    add_es_system psp
+    install_script "Start PPSSPP.sh"
+
+    add_emu_core pspminis ppsspp ppsspp-sa true
+    add_es_system pspminis
+
+    add_es_system tools
+
+    install_es_systems
+    return
+  fi
 
   ### Acorn BBC Micro
   add_emu_core bbcmicro retroarch b2 true
@@ -1694,30 +1741,5 @@ makeinstall_target() {
   ### Screenshots
   add_es_system imageviewer
 
-  ### Create es_systems
-  mk_es_systems
-
-  ### Generate document
-  mk_system_doc
-
-  mkdir -p ${INSTALL}/usr/config/emulationstation
-  cp -f ${ESTMP}/es_systems.cfg ${INSTALL}/usr/config/emulationstation
-
-  if [ "${WINDOWMANAGER}" = "weston" ]; then
-    sed -i 's~%RUNCOMMAND%~weston-terminal --command="%ROM%"~g' ${INSTALL}/usr/config/emulationstation/es_systems.cfg
-  elif [ "${WINDOWMANAGER}" = "swaywm-env" ]; then
-    sed -i 's~%RUNCOMMAND%~/usr/bin/foot %ROM%~g' ${INSTALL}/usr/config/emulationstation/es_systems.cfg
-  else
-    sed -i 's~%RUNCOMMAND%~/usr/bin/run %ROM%~g' ${INSTALL}/usr/config/emulationstation/es_systems.cfg
-  fi
-
-  ### Automount should handle this.
-  cp -f ${ESTMP}/system-dirs.conf ${INSTALL}/usr/config
-
-  mkdir -p ${INSTALL}/usr/bin
-  cp ${PKG_DIR}/scripts/mkcontroller ${INSTALL}/usr/bin
-
-  mkdir -p ${INSTALL}/usr/lib/autostart/common
-  cp ${PKG_DIR}/autostart/* ${INSTALL}/usr/lib/autostart/common
-  chmod 0755 ${INSTALL}/usr/lib/autostart/common/*
+  install_es_systems
 }

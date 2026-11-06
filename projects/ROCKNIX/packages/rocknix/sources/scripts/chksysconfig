@@ -25,8 +25,9 @@ verify() {
   fi
 
   # Check if any configs are missing and restore everything if they are
-  if [ ! -s /storage/.config/retroarch/retroarch-core-options.cfg ] || \
-     [ ! -s /storage/.config/retroarch/retroarch.cfg ] || \
+  if { [ -e /usr/config/retroarch/retroarch.cfg ] && \
+       { [ ! -s /storage/.config/retroarch/retroarch-core-options.cfg ] || \
+         [ ! -s /storage/.config/retroarch/retroarch.cfg ]; }; } || \
      ! grep -q system.hostname /storage/.config/system/configs/system.cfg; then
     rsync -a /usr/config/ /storage/.config
   fi

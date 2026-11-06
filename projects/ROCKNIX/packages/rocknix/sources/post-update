@@ -45,7 +45,9 @@ fi
 echo "Sync modules..." >>${LOG}
 tocon "Update tool modules..."
 rsync -a /usr/config/modules/* /storage/.config/modules/
-cp -f /usr/config/retroarch/retroarch-core-options.cfg /storage/.config/retroarch/retroarch-core-options.cfg
+if [ -e /usr/config/retroarch/retroarch-core-options.cfg ]; then
+  cp -f /usr/config/retroarch/retroarch-core-options.cfg /storage/.config/retroarch/retroarch-core-options.cfg
+fi
 
 ### Apply developer ssh keys if they exist
 echo "Apply dev keys if available..." >>${LOG}

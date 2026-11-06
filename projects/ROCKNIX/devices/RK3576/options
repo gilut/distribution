@@ -20,6 +20,7 @@
 
     PARTITION_TABLE="gpt"
     HW_CPU="Rockchip RK3576"
+    ENABLE_32BIT="no"
 
   # Kernel target
     KERNEL_TARGET="Image"
