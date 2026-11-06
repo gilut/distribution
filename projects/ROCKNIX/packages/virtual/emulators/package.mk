@@ -99,6 +99,10 @@ case "${DEVICE}" in
     LIBRETRO_CORES+=" beetle-psx-lr beetle-saturn-lr bsnes-lr bsnes-hd-lr dolphin-lr"
 esac
 
+if [ "${DEVICE}" = "RK3576" ]; then
+  PKG_EMUS="${PKG_EMUS// vita3k-sa/}"
+fi
+
 # Split building emulators into 2 stages, needed to fit the jobs into the 6 hour GH runner time limit.
 case "${TARGET_TYPE}" in
   cores_only)
@@ -1213,7 +1217,7 @@ makeinstall_target() {
 
   ### Sony Playstation Vita
   case ${DEVICE} in
-    RK3566|RK3576|RK3588|SM4450|SM6115|SM8250|SM8550|SM8650|SM8750|S922X|AMD64|SDM845)
+    RK3566|RK3588|SM4450|SM6115|SM8250|SM8550|SM8650|SM8750|S922X|AMD64|SDM845)
       add_emu_core psvita vita3k vita3k-sa true
       add_es_system psvita
       install_script "Start Vita3K.sh"
