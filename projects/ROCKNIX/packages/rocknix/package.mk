@@ -80,6 +80,10 @@ EOF
 
   sed -i "s#@DEVICENAME@#${DEVICE}#g" ${INSTALL}/usr/config/system/configs/system.cfg
 
+  if [ "${DEVICE}" = "RK3576" ]; then
+    sed -i "s#system.language=en_US#system.language=ja_JP#g" ${INSTALL}/usr/config/system/configs/system.cfg
+  fi
+
   ### Defaults for community builds.
   if [ "${OS_BUILD}" = "community" ]
   then

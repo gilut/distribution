@@ -23,4 +23,7 @@ makeinstall_target() {
       <fontLight>/usr/share/fonts/truetype/noto-cjk/NotoSansCJKsc-Regular.otf</fontLight>\
       <fontLogo>/usr/share/fonts/truetype/noto-cjk/NotoSansCJKsc-Regular.otf</fontLogo>\
    </variables>' ${INSTALL}/usr/share/themes/${PKG_NAME}/fonts.xml
+    if [ "${DEVICE}" = "RK3576" ]; then
+      sed -i 's#NotoSansCJKsc-Regular.otf#NotoSansCJKjp-Regular.otf#g' ${INSTALL}/usr/share/themes/${PKG_NAME}/fonts.xml
+    fi
 }

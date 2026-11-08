@@ -48,6 +48,14 @@ makeinstall_target() {
       localedef --force --verbose --inputfile=en_US --charmap=UTF-8 \
       ${INSTALL}/usr/config/locale/en_US.UTF-8 || true
 
+    if [ "${DEVICE}" = "RK3576" ]; then
+      I18NPATH=$(get_install_dir glibc)/usr/share/i18n/locales/ \
+        localedef --force --verbose --inputfile=ja_JP --charmap=UTF-8 \
+        ${INSTALL}/usr/config/locale/ja_JP.UTF-8 || true
+      find ${INSTALL}/usr/config/locale -mindepth 1 -maxdepth 1 \
+        ! -name ja_JP ! -name ja_JP.UTF-8 ! -name en_US.UTF-8 -exec rm -rf {} +
+    fi
+
   mkdir -p ${INSTALL}/usr/config/emulationstation
     cp -a ${PKG_DIR}/config/common/*.cfg ${INSTALL}/usr/config/emulationstation
     rm -f ${INSTALL}/usr/config/emulationstation/resources/logo.png
@@ -55,7 +63,9 @@ makeinstall_target() {
   mkdir -p ${INSTALL}/usr/config/emulationstation/resources
     cp -a ${PKG_BUILD}/resources/* ${INSTALL}/usr/config/emulationstation/resources
     rm -f ${INSTALL}/usr/config/emulationstation/resources/DroidSansFallbackFull.ttf
-    ln -sf /usr/share/fonts/truetype/noto-cjk/NotoSansCJKsc-Regular.otf \
+    local CJK_FONT="NotoSansCJKsc-Regular.otf"
+    [ "${DEVICE}" = "RK3576" ] && CJK_FONT="NotoSansCJKjp-Regular.otf"
+    ln -sf /usr/share/fonts/truetype/noto-cjk/${CJK_FONT} \
       ${INSTALL}/usr/config/emulationstation/resources/DroidSansFallbackFull.ttf
 
   mkdir -p ${INSTALL}/usr/bin

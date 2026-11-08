@@ -89,6 +89,9 @@ makeinstall_target() {
     cp -a ${PKG_DIR}/config/* ${INSTALL}/usr/config/ppsspp
     cp -a `find . -name "assets" | xargs echo` ${INSTALL}/usr/config/ppsspp
     rm -f ${INSTALL}/usr/config/ppsspp/assets/gamecontrollerdb.txt
+    if [ "${DEVICE}" = "RK3576" ]; then
+      find ${INSTALL}/usr/config/ppsspp/assets/lang -name '*.ini' ! -name en_US.ini ! -name ja_JP.ini -delete
+    fi
     ln -sf NotoSansJP-Regular.ttf ${INSTALL}/usr/config/ppsspp/assets/Roboto-Condensed.ttf
     curl -Lo ${INSTALL}/usr/config/ppsspp/PSP/Cheats/cheat.db https://raw.githubusercontent.com/Saramagrean/CWCheat-Database-Plus-/${CHEAT_DB_VERSION}/cheat.db
 
